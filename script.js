@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTechnology();
     initializePriceHistory();
     initializeNews();
+    initializeMining();
+    initializePolicies();
+    initializeSecurity();
     initializeNavigation();
     initializeScrollAnimations();
 });
@@ -19,7 +22,8 @@ function initializeTimeline() {
     timelineData.forEach((item, index) => {
         const timelineItem = document.createElement('div');
         timelineItem.className = 'timeline-item';
-        timelineItem.style.animationDelay = `${index * 0.1}s`;
+        // 事件较多时封顶延迟，避免末尾内容长时间不可见
+        timelineItem.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
         
         const tagsHtml = item.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
         
@@ -129,6 +133,90 @@ function initializeNews() {
         `;
         
         newsGrid.appendChild(newsCard);
+    });
+}
+
+// 初始化挖矿历程
+function initializeMining() {
+    const miningTimeline = document.querySelector('.mining-timeline');
+    if (!miningTimeline) return;
+
+    const miningData = bitcoinData.mining;
+
+    miningData.forEach((mining, index) => {
+        const miningItem = document.createElement('div');
+        miningItem.className = 'mining-item fade-in';
+        miningItem.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
+
+        miningItem.innerHTML = `
+            <div class="mining-content">
+                <h4>${mining.title}</h4>
+                <div class="mining-date">${mining.date}</div>
+                <p>${mining.description}</p>
+                <div class="mining-stats">
+                    <span class="mining-stat">⚡ 全网算力：${mining.hashrate || '—'}</span>
+                    <span class="mining-stat">📐 挖矿难度：${mining.difficulty || '—'}</span>
+                </div>
+            </div>
+        `;
+
+        miningTimeline.appendChild(miningItem);
+    });
+}
+
+// 初始化政策监管
+function initializePolicies() {
+    const policyGrid = document.querySelector('.policy-grid');
+    if (!policyGrid) return;
+
+    const policiesData = bitcoinData.policies;
+
+    policiesData.forEach((policy, index) => {
+        const policyCard = document.createElement('div');
+        policyCard.className = 'policy-card fade-in';
+        policyCard.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
+
+        policyCard.innerHTML = `
+            <div class="policy-header">
+                <span class="policy-country">${policy.country}</span>
+                <span class="policy-date">${policy.date}</span>
+            </div>
+            <div class="policy-title">${policy.title}</div>
+            <div class="policy-description">${policy.description}</div>
+            <div class="policy-impact">📌 ${policy.impact || ''}</div>
+        `;
+
+        policyGrid.appendChild(policyCard);
+    });
+}
+
+// 初始化安全事故
+function initializeSecurity() {
+    const securityGrid = document.querySelector('.security-grid');
+    if (!securityGrid) return;
+
+    const securityData = bitcoinData.security;
+
+    securityData.forEach((security, index) => {
+        const securityCard = document.createElement('div');
+        securityCard.className = 'security-card fade-in';
+        securityCard.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
+
+        const tagsHtml = security.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+        securityCard.innerHTML = `
+            <div class="security-header">
+                <span class="security-type">${security.type}</span>
+                <span class="security-severity severity-${security.severity === '极高' ? 'high' : security.severity === '高' ? 'high' : security.severity === '中高' ? 'medium' : 'low'}">${security.severity}</span>
+            </div>
+            <div class="security-title">${security.title}</div>
+            <div class="security-date">${security.date}</div>
+            <div class="security-description">${security.description}</div>
+            <div class="security-impact">📌 ${security.impact || ''}</div>
+            <div class="tags">${tagsHtml}</div>
+        `;
+
+        securityGrid.appendChild(securityCard);
     });
 }
 
@@ -316,14 +404,25 @@ function addStatistics() {
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     `;
     
+    const totalEvents = bitcoinData.timeline.length
+        + bitcoinData.milestones.length
+        + bitcoinData.technology.length
+        + bitcoinData.priceHistory.length
+        + bitcoinData.news.length
+        + (bitcoinData.mining ? bitcoinData.mining.length : 0)
+        + (bitcoinData.policies ? bitcoinData.policies.length : 0)
+        + (bitcoinData.security ? bitcoinData.security.length : 0);
+
     const stats = [
-        { number: '15+', label: '年发展历史' },
-        { number: '25+', label: '重要里程碑' },
-        { number: '12+', label: '技术升级' },
-        { number: '17+', label: '价格节点' }
+        { number: `${bitcoinData.timeline.length}`, label: '时间线事件' },
+        { number: `${bitcoinData.milestones.length}`, label: '年度里程碑' },
+        { number: `${bitcoinData.technology.length}`, label: '技术升级' },
+        { number: `${bitcoinData.priceHistory.length}`, label: '价格节点' },
+        { number: `${bitcoinData.policies.length}`, label: '政策事件' },
+        { number: `${bitcoinData.security.length}`, label: '安全事件' }
     ];
-    
-    let statsHtml = '<h3 style="text-align: center; margin-bottom: 30px; color: #333;">比特币发展统计</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center;">';
+
+    let statsHtml = `<h3 style="text-align: center; margin-bottom: 30px; color: #333;">比特币大事记数据统计（共 ${totalEvents} 条记录）</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center;">`;
     
     stats.forEach(stat => {
         statsHtml += `
