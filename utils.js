@@ -5,7 +5,7 @@ const BitcoinTimelineUtils = {
         const errors = [];
         
         // 检查必需的数据结构
-        const requiredSections = ['timeline', 'milestones', 'technology', 'priceHistory', 'news'];
+        const requiredSections = ['timeline', 'milestones', 'technology', 'priceHistory'];
         requiredSections.forEach(section => {
             if (!data[section] || !Array.isArray(data[section])) {
                 errors.push(`缺少必需的数据部分: ${section}`);
@@ -86,7 +86,7 @@ const BitcoinTimelineUtils = {
             milestones: [],
             technology: [],
             priceHistory: [],
-            news: []
+            china: []
         };
 
         const searchLower = searchTerm.toLowerCase();
@@ -123,9 +123,9 @@ const BitcoinTimelineUtils = {
             );
         }
 
-        // 搜索新闻
-        if (data.news) {
-            results.news = data.news.filter(item =>
+        // 搜索中国视角
+        if (data.china) {
+            results.china = data.china.filter(item =>
                 item.title.toLowerCase().includes(searchLower) ||
                 item.description.toLowerCase().includes(searchLower) ||
                 (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchLower)))
@@ -170,7 +170,7 @@ const BitcoinTimelineUtils = {
         }
 
         // 统计其他部分
-        ['milestones', 'technology', 'priceHistory', 'news'].forEach(section => {
+        ['milestones', 'technology', 'priceHistory', 'china'].forEach(section => {
             if (data[section]) {
                 stats.totalEvents += data[section].length;
             }
@@ -201,7 +201,7 @@ const BitcoinTimelineUtils = {
             milestones: [],
             technology: [],
             priceHistory: [],
-            news: []
+            china: []
         };
 
         const yearStr = year.toString();
@@ -234,9 +234,9 @@ const BitcoinTimelineUtils = {
             );
         }
 
-        // 筛选新闻
-        if (data.news) {
-            filteredData.news = data.news.filter(item =>
+        // 筛选中国视角
+        if (data.china) {
+            filteredData.china = data.china.filter(item =>
                 item.date.includes(yearStr)
             );
         }
@@ -306,7 +306,7 @@ const BitcoinTimelineUtils = {
         }
 
         // 清理其他数据部分
-        ['milestones', 'technology', 'priceHistory', 'news'].forEach(section => {
+        ['milestones', 'technology', 'priceHistory', 'china'].forEach(section => {
             if (cleanedData[section]) {
                 cleanedData[section] = cleanedData[section].filter(item => {
                     const hasRequiredFields = item.title && item.description;

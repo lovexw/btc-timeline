@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMilestones();
     initializeTechnology();
     initializePriceHistory();
-    initializeNews();
     initializeMining();
     initializePolicies();
     initializeSecurity();
+    initializeChina();
     initializeNavigation();
     initializeScrollAnimations();
 });
@@ -111,29 +111,55 @@ function initializePriceHistory() {
     });
 }
 
-// 初始化新闻
-function initializeNews() {
-    const newsGrid = document.querySelector('.news-grid');
-    if (!newsGrid) return;
+// 初始化中国视角
+function initializeChina() {
+    const chinaGrid = document.querySelector('.china-grid');
+    if (!chinaGrid) return;
 
-    const newsData = bitcoinData.news;
-    
-    newsData.forEach((news, index) => {
-        const newsCard = document.createElement('div');
-        newsCard.className = 'news-card fade-in';
-        newsCard.style.animationDelay = `${index * 0.1}s`;
-        
-        const tagsHtml = news.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-        
-        newsCard.innerHTML = `
-            <div class="news-date">${news.date}</div>
-            <div class="news-title">${news.title}</div>
-            <div class="news-description">${news.description}</div>
+    const chinaData = bitcoinData.china || [];
+
+    chinaData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'china-card fade-in';
+        card.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
+
+        const tagsHtml = item.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+        card.innerHTML = `
+            <div class="china-date">${item.date}</div>
+            <div class="china-title">${item.title}</div>
+            <div class="china-description">${item.description}</div>
             <div class="tags">${tagsHtml}</div>
         `;
-        
-        newsGrid.appendChild(newsCard);
+
+        chinaGrid.appendChild(card);
     });
+
+    // 从时间线自动聚合中国相关足迹（单一数据源，派生视图）
+    const derivedList = document.querySelector('.china-derived-list');
+    if (!derivedList) return;
+
+    const chinaKeywords = /中国|香港|人民币|华人|央行|金融委|政治局/;
+    const related = bitcoinData.timeline.filter(item =>
+        chinaKeywords.test(item.title) ||
+        chinaKeywords.test(item.description) ||
+        (item.tags || []).some(tag => chinaKeywords.test(tag))
+    );
+
+    related.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'china-derived-item';
+        row.innerHTML = `
+            <span class="china-derived-date">${item.date}</span>
+            <span class="china-derived-title">${item.title}</span>
+            <span class="china-derived-desc">${item.description}</span>
+        `;
+        derivedList.appendChild(row);
+    });
+
+    if (!related.length) {
+        derivedList.innerHTML = '<p class="loading">未找到相关事件</p>';
+    }
 }
 
 // 初始化挖矿历程
@@ -376,7 +402,7 @@ function addSearchFunctionality() {
 
 // 过滤内容
 function filterContent(searchTerm) {
-    const allItems = document.querySelectorAll('.timeline-item, .milestone-card, .tech-item, .price-item, .news-card');
+    const allItems = document.querySelectorAll('.timeline-item, .milestone-card, .tech-item, .price-item, .china-card, .mining-item, .policy-card, .security-card');
     
     allItems.forEach(item => {
         const text = item.textContent.toLowerCase();
@@ -408,10 +434,10 @@ function addStatistics() {
         + bitcoinData.milestones.length
         + bitcoinData.technology.length
         + bitcoinData.priceHistory.length
-        + bitcoinData.news.length
         + (bitcoinData.mining ? bitcoinData.mining.length : 0)
         + (bitcoinData.policies ? bitcoinData.policies.length : 0)
-        + (bitcoinData.security ? bitcoinData.security.length : 0);
+        + (bitcoinData.security ? bitcoinData.security.length : 0)
+        + (bitcoinData.china ? bitcoinData.china.length : 0);
 
     const stats = [
         { number: `${bitcoinData.timeline.length}`, label: '时间线事件' },
@@ -461,7 +487,7 @@ function addPrintStyles() {
                 page-break-inside: avoid;
             }
             
-            .timeline-item, .milestone-card, .tech-item, .price-item, .news-card {
+            .timeline-item, .milestone-card, .tech-item, .price-item, .china-card, .mining-item, .policy-card, .security-card {
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
@@ -533,7 +559,7 @@ function addThemeToggle() {
             themeButton.innerHTML = '☀️';
             
             // 更新所有卡片背景
-            document.querySelectorAll('.overview-card, .timeline-content, .milestone-card, .tech-item, .price-item, .news-card').forEach(card => {
+            document.querySelectorAll('.overview-card, .timeline-content, .milestone-card, .tech-item, .price-item, .china-card, .mining-item, .policy-card, .security-card').forEach(card => {
                 card.style.background = '#2d2d2d';
                 card.style.color = '#e0e0e0';
             });
@@ -543,7 +569,7 @@ function addThemeToggle() {
             themeButton.innerHTML = '🌙';
             
             // 恢复所有卡片背景
-            document.querySelectorAll('.overview-card, .timeline-content, .milestone-card, .tech-item, .price-item, .news-card').forEach(card => {
+            document.querySelectorAll('.overview-card, .timeline-content, .milestone-card, .tech-item, .price-item, .china-card, .mining-item, .policy-card, .security-card').forEach(card => {
                 card.style.background = 'white';
                 card.style.color = '#333';
             });
