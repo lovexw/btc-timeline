@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMilestones();
     initializeTechnology();
     initializePriceHistory();
+    initializeLiquidations();
     initializeMining();
     initializePolicies();
     initializeSecurity();
@@ -160,6 +161,35 @@ function initializeChina() {
     if (!related.length) {
         derivedList.innerHTML = '<p class="loading">未找到相关事件</p>';
     }
+}
+
+// 初始化爆仓大事件（数据按爆仓金额降序排列）
+function initializeLiquidations() {
+    const liquidationList = document.querySelector('.liquidation-list');
+    if (!liquidationList) return;
+
+    const liquidationData = bitcoinData.liquidations || [];
+
+    liquidationData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'liq-item fade-in';
+        card.style.animationDelay = `${Math.min(index * 0.05, 1.5)}s`;
+
+        card.innerHTML = `
+            <div class="liq-rank">#${index + 1}</div>
+            <div class="liq-main">
+                <div class="liq-head">
+                    <span class="liq-amount">${item.amount}</span>
+                    <span class="liq-date">${item.date}</span>
+                </div>
+                <div class="liq-title">${item.title}</div>
+                <div class="liq-price">${item.price}</div>
+                <div class="liq-cause">${item.cause}</div>
+            </div>
+        `;
+
+        liquidationList.appendChild(card);
+    });
 }
 
 // 初始化挖矿历程
@@ -402,7 +432,7 @@ function addSearchFunctionality() {
 
 // 过滤内容
 function filterContent(searchTerm) {
-    const allItems = document.querySelectorAll('.timeline-item, .milestone-card, .tech-item, .price-item, .china-card, .mining-item, .policy-card, .security-card');
+    const allItems = document.querySelectorAll('.timeline-item, .milestone-card, .tech-item, .price-item, .china-card, .liq-item, .mining-item, .policy-card, .security-card');
     
     allItems.forEach(item => {
         const text = item.textContent.toLowerCase();
@@ -434,6 +464,7 @@ function addStatistics() {
         + bitcoinData.milestones.length
         + bitcoinData.technology.length
         + bitcoinData.priceHistory.length
+        + (bitcoinData.liquidations ? bitcoinData.liquidations.length : 0)
         + (bitcoinData.mining ? bitcoinData.mining.length : 0)
         + (bitcoinData.policies ? bitcoinData.policies.length : 0)
         + (bitcoinData.security ? bitcoinData.security.length : 0)
